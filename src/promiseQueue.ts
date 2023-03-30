@@ -1,4 +1,4 @@
-type Fn = (...args: any[]) => any;
+type Fn = (...args: any[]) => any
 
 export const create = ({
   pollMs = 32,
@@ -6,67 +6,67 @@ export const create = ({
   pauseWhenEmpty = true,
   onPoll = () => void 0,
 } = {}) => {
-  const queue: Array<[Fn, (result: any) => void]> = [];
+  const queue: Array<[Fn, (result: any) => void]> = []
 
   const enqueue = <F extends Fn>(fn: F): Promise<ReturnType<F>> => {
-    return new Promise((resolve) => {
-      queue.push([fn, resolve]);
+    return new Promise(resolve => {
+      queue.push([fn, resolve])
 
       if (!isRunning && queue.length == 1 && pauseWhenEmpty) {
-        start();
+        start()
       }
-    });
-  };
+    })
+  }
 
-  let isRunning = false;
+  let isRunning = false
 
   const poll = () => {
     if (!isRunning) {
-      return;
+      return
     }
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setTimeout(async () => {
-      onPoll();
+      onPoll()
 
-      const item = queue.shift();
+      const item = queue.shift()
 
       if (item) {
         // execute
-        const [fn, resolve] = item;
+        const [fn, resolve] = item
 
-        resolve(await fn());
+        resolve(await fn())
       }
 
       if (!isRunning) {
-        return;
+        return
       }
 
       if (pauseWhenEmpty && queue.length === 0) {
-        stop();
-        return;
+        stop()
+        return
       }
 
-      poll();
-    }, pollMs);
-  };
+      poll()
+    }, pollMs)
+  }
 
   const start = () => {
     if (isRunning) {
-      return;
+      return
     }
 
-    isRunning = true;
+    isRunning = true
 
-    poll();
-  };
+    poll()
+  }
 
   const stop = () => {
-    isRunning = false;
-  };
+    isRunning = false
+  }
 
   if (startImmediately) {
-    start();
+    start()
   }
 
   return {
@@ -74,5 +74,5 @@ export const create = ({
     start,
     stop,
     isRunning: () => isRunning,
-  };
-};
+  }
+}
